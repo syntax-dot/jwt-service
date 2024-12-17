@@ -18,9 +18,7 @@ export class AppController {
   async getTokenFromSession(
     @Body() user: UserDto,
   ): Promise<{ accessToken: string }> {
-    console.log('user', user);
     const token = await this.authService.getTokenFromSession(user);
-    console.log('token', token);
     return { accessToken: token };
   }
 
