@@ -1,10 +1,10 @@
 import {
-  Controller,
-  Request,
-  Post,
   Body,
-  UseGuards,
+  Controller,
   Get,
+  Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth/auth.service';
@@ -14,15 +14,19 @@ import { UserDto } from './auth/dto/user.dto';
 export class AppController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('login')
-  async login(@Body() user: UserDto): Promise<{ access_token: string }> {
-    const token = await this.authService.login(user);
-    return { access_token: token };
+  @Post('auth')
+  async getTokenFromSession(
+    @Body() user: UserDto,
+  ): Promise<{ accessToken: string }> {
+    console.log('user', user);
+    const token = await this.authService.getTokenFromSession(user);
+    console.log('token', token);
+    return { accessToken: token };
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('validate')
-  getProfile(@Request() req) {
+  validate(@Request() req) {
     return req.user;
   }
 }
