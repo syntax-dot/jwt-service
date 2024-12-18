@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  jwt-service:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    container_name: jwt-service
+    env_file:
+      - .env
+    command: npm run start:dev
+    ports:
+      - "3001:3001"
