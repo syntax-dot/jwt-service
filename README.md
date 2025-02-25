@@ -34,8 +34,9 @@
    Создайте файл `.env` в корневой директории и добавьте следующие переменные:
 
    ```dotenv
-   JWT_SECRET=your_jwt_secret_key
-   BASE_URL=http://your-base-url.com
+    JWT_SECRET=your_jwt_secret_key
+    BASE_URL=https://test-vs.domru.ru/api/test
+    SERVICE_KEY=my_service_secret
    ```
 
 3. **Запустите приложение**
