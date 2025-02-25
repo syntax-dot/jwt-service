@@ -1,85 +1,105 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Nest JWT Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Этот проект представляет собой сервис аутентификации на основе JWT, разработанный с использованием [NestJS](https://nestjs.com/). Сервис выполняет проверку сессии пользователя через внешний сервис и, при успешной проверке, генерирует JWT-токен для дальнейшей аутентификации защищённых маршрутов.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Функциональность
 
-## Description
+- **Генерация JWT-токена**  
+  При отправке POST-запроса на `/auth` сервис проверяет корректность `sessionId` через внешний API и, в случае успеха, возвращает JWT-токен.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Валидация JWT-токена**  
+  Защищённый маршрут `/validate` позволяет проверить валидность переданного JWT-токена. Для доступа к этому маршруту требуется передавать токен в заголовке `Authorization` (или в параметрах URL).
 
-## Project setup
+- **Проверка сессии**  
+  Сессия пользователя проверяется через вызов внешнего API (временная реализация через `curl` с использованием `child_process.exec`), после чего возвращается результат проверки.
 
-```bash
-$ npm install
+## Используемые технологии и зависимости
+
+- **[NestJS](https://nestjs.com/)** — современный фреймворк для создания серверных приложений на Node.js.
+- **[Passport.js](http://www.passportjs.org/)** — middleware для аутентификации, используемый здесь с JWT стратегией.
+- **JWT (JSON Web Tokens)** — механизм для создания и валидации токенов.
+- **@nestjs/config** — модуль для работы с переменными окружения.
+- **@nestjs/axios** — модуль для выполнения HTTP-запросов.
+- **child_process.exec** — выполнение внешней команды (`curl`) для проверки сессии.
+
+## Установка и запуск
+1. **Установите зависимости**
+
+   ```bash
+   npm install
+   ```
+
+2. **Настройте переменные окружения**
+
+   Создайте файл `.env` в корневой директории и добавьте следующие переменные:
+
+   ```dotenv
+   JWT_SECRET=your_jwt_secret_key
+   BASE_URL=http://your-base-url.com
+   ```
+
+3. **Запустите приложение**
+
+   ```bash
+   npm run start:dev
+   ```
+
+## API Endpoints
+
+### POST `/auth`
+
+Генерирует JWT-токен после проверки сессии.
+
+**Тело запроса (JSON):**
+
+```json
+{
+  "sessionId": "exampleSessionId",
+  "username": "exampleUsername",
+  "userId": 123
+}
 ```
 
-## Compile and run the project
+**Ответ:**
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```json
+{
+  "accessToken": "your_jwt_token"
+}
 ```
 
-## Run tests
+### GET `/validate`
 
-```bash
-# unit tests
-$ npm run test
+Проверяет валидность JWT-токена. Требует аутентификации.
 
-# e2e tests
-$ npm run test:e2e
+**Заголовки запроса:**
 
-# test coverage
-$ npm run test:cov
+```
+Authorization: Bearer your_jwt_token
 ```
 
-## Resources
+**Ответ:**
 
-Check out a few resources that may come in handy when working with NestJS:
+```json
+{
+  "userId": 123,
+  "username": "exampleUsername"
+}
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Как это работает
 
-## Support
+1. **Проверка сессии**
+    - Метод `sanitizeSessionId` проверяет формат и длину `sessionId`.
+    - Метод `checkSession` выполняет внешний запрос (через `curl`).
+    - Если в ответе присутствует поле `Login`, сессия считается валидной.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+2. **Генерация JWT-токена**
+    - Если сессия валидна, метод `getTokenFromSession` создаёт JWT-токен.
+    - Токен подписывается `JWT_SECRET` и имеет срок действия 1 день.
 
-## Stay in touch
+3. **JWT стратегия**
+    - `jwt.strategy.ts` реализует стратегию Passport для валидации JWT-токена.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+4. **Защищённые маршруты**
+    - `/validate` защищён `AuthGuard('jwt')`. Для доступа требуется действительный JWT-токен.

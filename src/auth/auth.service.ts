@@ -4,7 +4,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { HttpService } from '@nestjs/axios';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
 import { UserDto } from './dto/user.dto';
 import { ConfigService } from '@nestjs/config';
@@ -14,7 +13,6 @@ import { exec } from 'child_process';
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
 
